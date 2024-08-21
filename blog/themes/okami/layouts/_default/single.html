@@ -8,7 +8,9 @@
     <li>{{ .Params.location }}</li>
   </ul>
 
-  <img src="./{{ .Params.photo }}" />
+  {{ with .Resources.GetMatch .Params.photo }}
+    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" />
+  {{ end }}
 
   {{ .Content }}
   {{ partial "terms.html" (dict "taxonomy" "tags" "page" .) }}
