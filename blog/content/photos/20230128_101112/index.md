@@ -3,7 +3,8 @@
    "draft": false,
    "params": {
       "photo": "lg_20240501_110317_e70b8d3dbde23d49cfd88e5b251871d5.jpg",
-      "location": "Yelverton, Devon, United Kingdom"
+      "location": "Yelverton, Devon, United Kingdom",
+      "caption": "Grimspound is a late Bronze Age settlement, situated on Dartmoor in Devon"
    },
    "title": "Test post 1"
 }

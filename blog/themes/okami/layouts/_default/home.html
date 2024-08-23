@@ -3,7 +3,7 @@
   {{ range site.RegularPages }}
     <a href="{{ .RelPermalink }}">
     {{ with .Resources.GetMatch .Params.photo }}
-      {{ $img := .Fill "200x200" }}
+      {{ $img := .Fill "400x400" }}
       <img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" />
     {{ end }}
     </a>

@@ -6,6 +6,7 @@
   <ul>
     <li><time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time></li>
     <li>{{ .Params.location }}</li>
+    {{ with .Params.caption }}<li>{{ . }}</li>{{ end }}
   </ul>
 
   {{ with .Resources.GetMatch .Params.photo }}
