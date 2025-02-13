@@ -2,7 +2,9 @@
   <h1>{{ .Title }}</h1>
 
   {{ range .Pages }}
+  <div>
     {{ partial "post_list.html" . }}
+  </div>
   {{ end }}
 
 {{ end }}

@@ -2,7 +2,7 @@
 
   {{ $photos := where site.RegularPages "Params.photo" "ne" nil }}
   {{ range $photos }}
-    {{ partial "post_list.html" . }}
+    {{ partial "post_photo_grid.html" . }}
   {{ end }}
 
 {{ end }}
