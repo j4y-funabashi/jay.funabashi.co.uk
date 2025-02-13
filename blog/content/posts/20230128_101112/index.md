@@ -6,5 +6,5 @@
       "location": "Yelverton, Devon, United Kingdom",
       "caption": "Grimspound is a late Bronze Age settlement, situated on Dartmoor in Devon"
    },
-   "title": "Test post 1"
+   "tags": ["ldwa", "hiking"]
 }

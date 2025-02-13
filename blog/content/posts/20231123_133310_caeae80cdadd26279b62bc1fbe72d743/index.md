@@ -6,5 +6,5 @@
       "location": "Meanwood, West Yorkshire, United Kingdom",
       "caption": "Spot the cat"
    },
-   "title": "Test post 3"
+   "tags": ["kitteh"]
 }

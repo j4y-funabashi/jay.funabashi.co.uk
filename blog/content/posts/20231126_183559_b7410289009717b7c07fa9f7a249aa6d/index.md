@@ -3,7 +3,8 @@
    "draft": false,
    "params": {
       "photo": "lg_20231126_183559_b7410289009717b7c07fa9f7a249aa6d.jpg",
-      "location": "Meanwood, West Yorkshire, United Kingdom"
+      "location": "Meanwood, West Yorkshire, United Kingdom",
+      "caption": "Rainbow chard"
    },
-   "title": "Test post 2"
+   "tags": ["growyourown"]
 }
