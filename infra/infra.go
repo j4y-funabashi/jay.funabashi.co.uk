@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
-	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awss3"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
@@ -19,11 +19,7 @@ func NewInfraStack(scope constructs.Construct, id string, props *InfraStackProps
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
 	// The code that defines your stack goes here
-
-	// example resource
-	// queue := awssqs.NewQueue(stack, jsii.String("InfraQueue"), &awssqs.QueueProps{
-	// 	VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(300)),
-	// })
+	awss3.NewBucket(stack, jsii.String("micropub.funabashi.co.uk"), &awss3.BucketProps{})
 
 	return stack
 }
@@ -33,7 +29,7 @@ func main() {
 
 	app := awscdk.NewApp(nil)
 
-	NewInfraStack(app, "InfraStack", &InfraStackProps{
+	NewInfraStack(app, "jayFunabashiStack", &InfraStackProps{
 		awscdk.StackProps{
 			Env: env(),
 		},
