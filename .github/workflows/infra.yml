@@ -1,0 +1,31 @@
+# Sample workflow for building and deploying a Hugo site to GitHub Pages
+name: Deploy Infrastructure
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+# Default to bash
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Node
+        uses: actions/setup-node@v4
+      - name: Install CDK
+        run: |
+          npm install -g aws-cdk
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.17.0'
+      - name: CDK Deploy
+        working-directory: ./infra
+        run: |
+          cdk deploy

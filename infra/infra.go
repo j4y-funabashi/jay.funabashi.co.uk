@@ -19,7 +19,10 @@ func NewInfraStack(scope constructs.Construct, id string, props *InfraStackProps
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
 	// The code that defines your stack goes here
-	awss3.NewBucket(stack, jsii.String("micropub.funabashi.co.uk"), &awss3.BucketProps{})
+	micropubBucketName := "micropub.funabashi.co.uk"
+	awss3.NewBucket(stack, jsii.String(micropubBucketName), &awss3.BucketProps{
+		BucketName: jsii.String(micropubBucketName),
+	})
 
 	return stack
 }
@@ -29,7 +32,7 @@ func main() {
 
 	app := awscdk.NewApp(nil)
 
-	NewInfraStack(app, "jayFunabashiStack", &InfraStackProps{
+	NewInfraStack(app, "jay-funabashi-co-uk", &InfraStackProps{
 		awscdk.StackProps{
 			Env: env(),
 		},
