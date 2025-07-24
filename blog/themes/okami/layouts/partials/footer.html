@@ -1,0 +1,11 @@
+
+<nav>
+  {{ with resources.Get "img/profile_pic.jpeg" }}
+  <div>
+    <a class="h-card" href="{{ urls.AbsURL "/" }}">
+      <img src="{{.RelPermalink}}" alt="" width="45px" />
+      Jay Funabashi
+    </a>
+  </div>
+  {{ end }}
+</nav>

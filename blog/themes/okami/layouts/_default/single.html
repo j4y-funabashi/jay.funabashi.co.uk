@@ -1,18 +1,12 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
 
-  {{ $dateMachine := .Date | time.Format "2006-01-02T15:04:05-07:00" }}
-  {{ $dateHuman := .Date | time.Format ":date_long" }}
-  <ul>
-    <li><time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time></li>
-    <li>{{ .Params.location }}</li>
-    {{ with .Params.caption }}<li>{{ . }}</li>{{ end }}
-  </ul>
 
-  {{ with .Resources.GetMatch .Params.photo }}
-    <img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}" />
+  {{ with .Params.photo }}
+  <div>
+    <img src="{{ . }}" />
+  </div>
   {{ end }}
 
-  {{ .Content }}
-  {{ partial "terms.html" (dict "taxonomy" "tags" "page" .) }}
+  {{ partial "post_meta.html" . }}
+
 {{ end }}

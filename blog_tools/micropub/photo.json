@@ -1,0 +1,39 @@
+{
+	"type": [
+		"h-entry"
+	],
+	"properties": {
+		"category": [
+			"indieweb"
+		],
+		"photo": [
+			"https://media.funabashi.co.uk/lg_20240501_110317_e70b8d3dbde23d49cfd88e5b251871d5.jpg"
+		],
+		"published": [
+			"2014-05-06T11:19:48-07:00"
+		],
+		"content": [
+			{
+				"value": "Session scheduling #iiw #indieweb"
+			}
+		],
+		"location": [
+			{
+				"type": [
+					"h-adr"
+				],
+				"properties": {
+					"locality": [
+						"Computer History Museum"
+					],
+					"region": [
+						"Computer History Museum"
+					]
+					"country-name": [
+						"Computer History Museum"
+					]
+				},
+			}
+		]
+	}
+}
