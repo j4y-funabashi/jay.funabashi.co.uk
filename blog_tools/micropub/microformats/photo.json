@@ -4,17 +4,17 @@
 	],
 	"properties": {
 		"category": [
-			"indieweb"
+			"longdistancewalking", "twomoorsway"
 		],
 		"photo": [
 			"https://media.funabashi.co.uk/lg_20240501_110317_e70b8d3dbde23d49cfd88e5b251871d5.jpg"
 		],
 		"published": [
-			"2014-05-06T11:19:48-07:00"
+			"2024-05-01T11:03:17+00:00"
 		],
 		"content": [
 			{
-				"value": "Session scheduling #iiw #indieweb"
+				"value": "Grimspound is a late Bronze Age settlement, situated on Dartmoor in Devon"
 			}
 		],
 		"location": [
@@ -24,13 +24,13 @@
 				],
 				"properties": {
 					"locality": [
-						"Computer History Museum"
+						"Yelverton"
 					],
 					"region": [
-						"Computer History Museum"
+						"Devon"
 					]
 					"country-name": [
-						"Computer History Museum"
+						"United Kingdom"
 					]
 				},
 			}

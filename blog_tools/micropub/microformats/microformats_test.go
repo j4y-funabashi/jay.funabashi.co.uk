@@ -2,6 +2,7 @@ package microformats
 
 import (
 	"io"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -19,22 +20,36 @@ func (m MockReader) Read(p []byte) (n int, err error) {
 func TestParse(t *testing.T) {
 
 	type args struct {
-		r io.Reader
+		mfFileName string
+		r          io.Reader
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    MicroFormat
+		want    Microformat
 		wantErr bool
 	}{
 		{
 			name: "hello",
-			args: args{r: MockReader{expectedData: []byte(`{}`)}},
+			args: args{
+				mfFileName: "photo.json",
+			},
+			want: Microformat{
+				Type: []string{"h-entry"},
+			},
 		},
 	}
 	for _, tt := range tests {
+
+		mfData, err := os.ReadFile(tt.args.mfFileName)
+		if err != nil {
+			t.Logf("failed to read file %s", err)
+			t.FailNow()
+		}
+		mockReader := MockReader{expectedData: mfData}
+
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Parse(tt.args.r)
+			got, err := Parse(mockReader)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return

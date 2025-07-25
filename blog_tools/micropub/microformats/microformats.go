@@ -2,10 +2,12 @@ package microformats
 
 import "io"
 
-type MicroFormat struct {
+type Microformat struct {
+	Type       []string         `json:"type"`
+	Properties map[string][]any `json:"properties"`
 }
 
-func Parse(r io.Reader) (MicroFormat, error) {
-	mf := MicroFormat{}
-	return mf,  nil
+func Parse(r io.Reader) (Microformat, error) {
+	mf := Microformat{}
+	return mf, nil
 }
