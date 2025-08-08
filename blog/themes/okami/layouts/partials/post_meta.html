@@ -13,7 +13,8 @@
   {{ partial "terms.html" (dict "taxonomy" "tags" "page" .) }}
 
   {{ with .Params.location }}
-  <div><a target="_blank" href="https://www.openstreetmap.org/#map=19/50.612990/-3.837592&layers=P">{{ . }}</a></div>
+  <div>
+    <a target="_blank" href="https://www.openstreetmap.org/?mlat={{ .lat }}&mlon={{ .lon }}#map=18/{{ .lat }}/{{ .lon }}&layers=P">{{ .locality }}, {{ .region }}, {{ .country }}</a></div>
   {{ end }}
 
 </div>
