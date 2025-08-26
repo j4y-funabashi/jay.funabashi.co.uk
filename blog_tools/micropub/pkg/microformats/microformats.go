@@ -89,7 +89,7 @@ func (mf Microformat) GetStringSlice(prop string) ([]string, error) {
 	}
 
 	if len(res) == 0 {
-		return strSlice, fmt.Errorf("mf key is an empty array: %s", prop)
+		return strSlice, nil
 	}
 
 	for _, s := range res {
