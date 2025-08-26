@@ -1,8 +1,10 @@
 {{ define "main" }}
 
+<div class="cf">
   {{ $photos := where site.RegularPages "Params.photo" "ne" nil }}
   {{ range $photos }}
     {{ partial "post_photo_grid.html" . }}
   {{ end }}
+</div>
 
 {{ end }}

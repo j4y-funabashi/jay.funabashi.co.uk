@@ -1,6 +1,8 @@
+<div class="fl w-third">
 <a href="{{ .RelPermalink }}">
   {{ with resources.GetRemote .Params.photo }}
     {{ $img := .Fill "400x400" }}
-    <img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" />
+    <img src="{{ $img.RelPermalink }}" />
   {{ end }}
 </a>
+</div>
