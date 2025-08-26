@@ -23,6 +23,11 @@ func main() {
 		),
 	)
 
+	err := os.MkdirAll(*outputDirectory, 0755)
+	if err != nil {
+		logger.Error("failed to make output directory %v", "error", err)
+	}
+
 	outputDir, err := os.Stat(*outputDirectory)
 	if os.IsNotExist(err) {
 		logger.Error("output directory does not exists")
