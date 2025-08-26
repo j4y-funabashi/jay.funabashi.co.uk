@@ -55,7 +55,9 @@ jobs:
 
       - name: Fetch posts
         run: |
-          go run main.go -output=../../blog/content/posts
+          ls -lhA .
+          ls -lhAR ${{ github.workspace }}
+          go run main.go -output=${{ github.workspace }}/blog/content/posts
         working-directory: ./blog_tools/micropub
 
       - name: Install Hugo CLI
