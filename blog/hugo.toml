@@ -3,3 +3,14 @@ languageCode = 'en-GB'
 title = 'jay.funabashi.co.uk'
 theme = 'okami'
 capitalizeListTitles = false
+
+[related]
+  includeNewer = true
+  threshold = 70
+  toLower = false
+  [[related.indices]]
+    name = 'date'
+    weight = 80
+  [[related.indices]]
+    name = 'tags'
+    weight = 90

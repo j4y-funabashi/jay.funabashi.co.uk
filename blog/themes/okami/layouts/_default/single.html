@@ -1,12 +1,21 @@
 {{ define "main" }}
 
 
-  {{ with .Params.photo }}
-  <div>
-    <img src="{{ . }}" />
-  </div>
-  {{ end }}
+{{ with .Params.photo }}
+<div>
+  <img src="{{ . }}" />
+</div>
+{{ end }}
 
-  {{ partial "post_meta.html" . }}
+{{ partial "post_meta.html" . }}
+
+{{ with site.RegularPages.Related . | first 6 }}
+<div class="cf">
+<p>Related content:</p>
+  {{ range . }}
+    {{ partial "post_photo_grid.html" . }}
+  {{ end }}
+</div>
+{{ end }}
 
 {{ end }}
