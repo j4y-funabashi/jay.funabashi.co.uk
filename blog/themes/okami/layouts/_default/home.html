@@ -2,7 +2,7 @@
 
 <div class="cf">
   {{ $photos := where site.RegularPages "Params.photo" "ne" nil }}
-  {{ range (.Paginate $photos 9).Pages }}
+  {{ range (.Paginate $photos 30).Pages }}
     {{ partial "post_photo_grid.html" . }}
   {{ end }}
 </div>
