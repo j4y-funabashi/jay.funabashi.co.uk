@@ -1,9 +1,17 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
+<h1>{{ .Title }}</h1>
+
+{{ $paginator := .Paginate (.Pages.GroupByDate "Jan 2006") 30 }}
+{{ range $paginator.PageGroups }}
+
+  <h2>{{ .Key }}</h2>
 
   {{ range .Pages }}
     {{ partial "post_list.html" . }}
-  </div>
   {{ end }}
+
+{{ end }}
+
+{{ partial "pagination.html" . }}
 
 {{ end }}
