@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 )
 
 type Microformat struct {
@@ -21,6 +22,9 @@ type HugoPostParams struct {
 	Photo    string           `json:"photo,omitempty"`
 	Location HugoPostLocation `json:"location,omitempty"`
 	Caption  string           `json:"caption,omitempty"`
+	Year     string           `json:"year,omitempty"`
+	Month    string           `json:"month,omitempty"`
+	Day      string           `json:"day,omitempty"`
 }
 type HugoPostLocation struct {
 	Locality string `json:"locality,omitempty"`
@@ -156,6 +160,14 @@ func (mf Microformat) ToHugoPost() (HugoPost, error) {
 		return hugo, err
 	}
 	hugo.Date = dat
+
+	pubDate, err := time.Parse(time.RFC3339Nano, dat)
+	if err != nil {
+		return hugo, err
+	}
+	hugo.Params.Year = pubDate.Format("2006")
+	hugo.Params.Month = pubDate.Format("01")
+	hugo.Params.Day = pubDate.Format("02")
 
 	tags, err := mf.GetStringSlice("category")
 	if err != nil {

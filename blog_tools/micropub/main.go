@@ -59,8 +59,29 @@ func main() {
 		hugoPostJson, err := json.Marshal(hugoPost)
 
 		// create dir
-		postOutputDir := filepath.Join(*outputDirectory, hugoPost.Params.Uid)
-		os.Mkdir(postOutputDir, 0755)
+		postOutputDir := filepath.Join(*outputDirectory, hugoPost.Params.Year, hugoPost.Params.Month, hugoPost.Params.Day, hugoPost.Params.Uid)
+		err = os.MkdirAll(postOutputDir, 0755)
+		if err != nil {
+			logger.Error("failed to create hugo post directory %v", "error", err)
+			break
+		}
+
+		// create _index files
+		err = os.WriteFile(filepath.Join(*outputDirectory, hugoPost.Params.Year, "_index.md"), []byte{}, 0755)
+		if err != nil {
+			logger.Error("failed to save _index file %v", "error", err)
+			break
+		}
+		err = os.WriteFile(filepath.Join(*outputDirectory, hugoPost.Params.Year, hugoPost.Params.Month, "_index.md"), []byte{}, 0755)
+		if err != nil {
+			logger.Error("failed to save _index file %v", "error", err)
+			break
+		}
+		err = os.WriteFile(filepath.Join(*outputDirectory, hugoPost.Params.Year, hugoPost.Params.Month, hugoPost.Params.Day, "_index.md"), []byte{}, 0755)
+		if err != nil {
+			logger.Error("failed to save _index file %v", "error", err)
+			break
+		}
 
 		// save post
 		postOutputFilename := filepath.Join(postOutputDir, "index.md")

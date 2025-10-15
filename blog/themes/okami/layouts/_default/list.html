@@ -1,7 +1,7 @@
 {{ define "main" }}
 <h1>{{ .Title }}</h1>
 
-{{ $paginator := .Paginate (.Pages.GroupByDate "Jan 2006") 30 }}
+{{ $paginator := .Paginate (.RegularPagesRecursive.GroupByDate "Jan 2006") 30 }}
 {{ range $paginator.PageGroups }}
 
   <h2>{{ .Key }}</h2>
