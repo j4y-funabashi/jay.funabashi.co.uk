@@ -4,8 +4,8 @@
     <a href="{{ .RelPermalink }}">
       {{ with .Params.photo }}
         {{ with resources.GetRemote . }}
-          {{ $img := .Fill "400x400" }}
-          <img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" />
+          {{ $img := .Fill "620x620" }}
+          <img src="{{ $img.RelPermalink }}" />
         {{ end }}
       {{ end }}
     </a>
