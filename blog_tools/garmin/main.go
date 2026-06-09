@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,6 +19,10 @@ import (
 	"github.com/golang/geo/s2"
 	"github.com/tkrajina/gpxgo/gpx"
 )
+
+type App struct {
+	Logger *slog.Logger
+}
 
 type HikeData struct {
 	StartTime        time.Time
@@ -52,42 +57,43 @@ func (h HikeData) MapFileName() string {
 }
 
 func main() {
-	inputDir := "/home/jayr/Downloads/garmin-connect-export/2025-05-14_garmin_connect_export"
+	logger := slog.Default()
+	app := App{
+		Logger: logger,
+	}
+
+	inputDir := "/home/jayr/Downloads/etrex"
 
 	err := filepath.Walk(inputDir,
 		func(path string, info os.FileInfo, err error) error {
-
 			ext := filepath.Ext(path)
 			if ext != ".gpx" {
 				return nil
 			}
-			if path != "/home/jayr/Downloads/garmin-connect-export/2025-05-14_garmin_connect_export/activity_19092581469.gpx" {
-				return nil
-			}
-			hikeData := ProcessFile(path)
-			log.Printf("=== hike: %s", hikeData)
+			app.Logger = slog.With("inputFile", path)
+			hikeData := app.ProcessFile(path)
+			slog.Info("=== hike", "hikeData", hikeData)
 			return nil
 		})
-
 	if err != nil {
-
 		log.Fatalf("failed walking dir %s", err.Error())
 	}
-
 }
 
-func ProcessFile(inputFilePath string) HikeData {
-	log.Printf("processing file: %s", inputFilePath)
+func (app App) ProcessFile(inputFilePath string) HikeData {
+	app.Logger.Info("processing file")
 
 	inputFile, err := os.ReadFile(inputFilePath)
 	if err != nil {
-		log.Fatalf("failed opening file")
+		app.Logger.Error("failed opening file")
 	}
 
 	gpxFile, err := gpx.ParseBytes(inputFile)
 	if err != nil {
-		log.Fatalf("failed parsing bytes")
+		app.Logger.Error("failed parsing bytes")
 	}
+	gpxFile.ReduceGpxToSingleTrack()
+	gpxFile.SimplifyTracks(0.3)
 	gpxFileData := ParseGpxFile(gpxFile)
 
 	hike := HikeData{
@@ -102,7 +108,7 @@ func ProcessFile(inputFilePath string) HikeData {
 
 	// create static map
 	ctx := sm.NewContext()
-	ctx.SetSize(800, 600)
+	ctx.SetSize(1080, 1080)
 
 	ctx.AddObject(
 		sm.NewPath(gpxFileData.Path, color.RGBA{255, 0, 0, 255}, 4.0),
@@ -110,14 +116,14 @@ func ProcessFile(inputFilePath string) HikeData {
 
 	ctx.AddObject(
 		sm.NewMarker(
-			s2.LatLngFromDegrees(gpxFileData.FirstPoint.Latitude, gpxFileData.FirstPoint.Longitude),
+			s2.LatLngFromDegrees(gpxFileData.FirstPoint.GetLatitude(), gpxFileData.FirstPoint.GetLongitude()),
 			color.RGBA{0, 255, 0, 255},
 			16.0,
 		))
 
 	ctx.AddObject(
 		sm.NewMarker(
-			s2.LatLngFromDegrees(gpxFileData.LastPoint.Latitude, gpxFileData.LastPoint.Longitude),
+			s2.LatLngFromDegrees(gpxFileData.LastPoint.GetLatitude(), gpxFileData.LastPoint.GetLongitude()),
 			color.RGBA{255, 0, 0, 255},
 			16.0,
 		),
@@ -125,12 +131,12 @@ func ProcessFile(inputFilePath string) HikeData {
 
 	img, err := ctx.Render()
 	if err != nil {
-		log.Fatalf("failed to render image")
+		app.Logger.Error("failed to render image")
 	}
 
 	err = gg.SavePNG(hike.MapFileName(), img)
 	if err != nil {
-		log.Fatalf("failed to save image")
+		app.Logger.Error("failed to save image")
 	}
 
 	hike.StartLocation = ReverseGeo(gpxFileData.FirstPoint)
@@ -149,11 +155,13 @@ func ParseGpxFile(gpxFile *gpx.GPX) GpxFileData {
 	response := GpxFileData{}
 
 	for _, track := range gpxFile.Tracks {
+		lastSeg := track.Segments[len(track.Segments)-1]
+		response.FirstPoint = track.Segments[0].Points[0]
+		response.LastPoint = lastSeg.Points[len(lastSeg.Points)-1]
 		for _, seg := range track.Segments {
-			response.FirstPoint = seg.Points[0]
-			response.LastPoint = seg.Points[len(seg.Points)-1]
 			for _, point := range seg.Points {
-				response.Path = append(response.Path, s2.LatLngFromDegrees(point.Latitude, point.Longitude))
+				latlng := s2.LatLngFromDegrees(point.GetLatitude(), point.GetLongitude())
+				response.Path = append(response.Path, latlng)
 			}
 		}
 	}
@@ -162,13 +170,16 @@ func ParseGpxFile(gpxFile *gpx.GPX) GpxFileData {
 }
 
 func ReverseGeo(point gpx.GPXPoint) Location {
+	client := &http.Client{}
+	logger := slog.Default()
 
 	// build URL
-	baseURL := "https://nominatim.openstreetmap.org/reverse"
+	baseURL := "http://nominatim.openstreetmap.org/reverse"
 	requestURL, err := url.Parse(baseURL)
 	if err != nil {
-		log.Fatalf("failed to parse url")
+		logger.Error("failed to parse url", "baseURL", baseURL)
 	}
+
 	q := requestURL.Query()
 	q.Set("format", "geocodejson")
 	q.Set("zoom", "18")
@@ -179,9 +190,13 @@ func ReverseGeo(point gpx.GPXPoint) Location {
 	q.Set("lon", lon)
 	requestURL.RawQuery = q.Encode()
 
-	log.Printf("lat=%s&lon=%s", lat, lon)
+	req, err := http.NewRequest("GET", requestURL.String(), nil)
+	if err != nil {
+		logger.Error("failed to create request", "baseURL", baseURL, "requestURL", requestURL.String())
+	}
+	req.Header.Set("User-Agent", "inari")
 
-	res, err := http.Get(requestURL.String())
+	res, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("failed to get url")
 	}
@@ -211,8 +226,8 @@ func ReverseGeo(point gpx.GPXPoint) Location {
 		Country:   response.Features[0].Properties.Geocoding.Country,
 	}
 }
-func (res ReverseGeocodeResponse) GetRegion() string {
 
+func (res ReverseGeocodeResponse) GetRegion() string {
 	fields := []string{
 		res.Features[0].Properties.Geocoding.County,
 		res.Features[0].Properties.Geocoding.State,
@@ -227,12 +242,17 @@ func (res ReverseGeocodeResponse) GetRegion() string {
 }
 
 func (res ReverseGeocodeResponse) GetLocality() string {
+	if len(res.Features) == 0 {
+		return ""
+	}
+
+	feat := res.Features[0]
 	fields := []string{
-		res.Features[0].Properties.Geocoding.Locality,
-		res.Features[0].Properties.Geocoding.Admin.Level10,
-		res.Features[0].Properties.Geocoding.Admin.Level8,
-		res.Features[0].Properties.Geocoding.Admin.Level5,
-		res.Features[0].Properties.Geocoding.City,
+		feat.Properties.Geocoding.Locality,
+		feat.Properties.Geocoding.Admin.Level10,
+		feat.Properties.Geocoding.Admin.Level8,
+		feat.Properties.Geocoding.Admin.Level5,
+		feat.Properties.Geocoding.City,
 	}
 
 	for _, loc := range fields {
