@@ -41,6 +41,7 @@ type HikeData struct {
 	Descent          float64
 	StartLocation    Location
 	EndLocation      Location
+	TrackData        []TrackData
 }
 
 type Location struct {
@@ -69,22 +70,17 @@ func main() {
 		Logger: logger,
 	}
 
-	inputDir := flag.String("in", "/home/jayr/Downloads/etrex", "input directory")
 	flag.Parse()
+	inputFiles := flag.Args()
 
-	err := filepath.Walk(*inputDir,
-		func(path string, info os.FileInfo, err error) error {
-			ext := filepath.Ext(path)
-			if ext != ".gpx" {
-				return nil
-			}
-			app.Logger = slog.With("inputFile", path)
-			hikeData := app.ProcessFile(path)
-			slog.Info("=== hike", "hikeData", hikeData)
-			return nil
-		})
-	if err != nil {
-		log.Fatalf("failed walking dir %s", err.Error())
+	for _, inputFilepath := range inputFiles {
+		ext := filepath.Ext(inputFilepath)
+		if ext != ".gpx" {
+			continue
+		}
+		app.Logger = slog.With("inputFile", inputFilepath)
+		hikeData := app.ProcessFile(inputFilepath)
+		slog.Info("=== hike", "hikeData", hikeData)
 	}
 }
 
@@ -102,7 +98,7 @@ func (app App) ProcessFile(inputFilePath string) HikeData {
 		app.Logger.Error("failed parsing bytes")
 	}
 	gpxData.ReduceGpxToSingleTrack()
-	gpxData.SimplifyTracks(0.3)
+	gpxData.SimplifyTracks(0.2)
 
 	trackData := ParseTrackData(gpxData)
 
@@ -117,6 +113,8 @@ func (app App) ProcessFile(inputFilePath string) HikeData {
 		Descent:          gpxData.UphillDownhill().Downhill,
 	}
 
+	hikeData.TrackData = append(hikeData.TrackData, trackData)
+
 	// reverseGeo
 	hikeData.StartLocation = ReverseGeo(trackData.FirstPoint)
 	hikeData.EndLocation = ReverseGeo(trackData.LastPoint)
@@ -125,9 +123,11 @@ func (app App) ProcessFile(inputFilePath string) HikeData {
 	ctx := sm.NewContext()
 	ctx.SetSize(1080, 1080)
 
-	ctx.AddObject(
-		sm.NewPath(trackData.Path, color.RGBA{255, 0, 0, 255}, 4.0),
-	)
+	for _, trackPath := range hikeData.TrackData {
+		ctx.AddObject(
+			sm.NewPath(trackPath.Path, color.RGBA{255, 0, 0, 255}, 4.0),
+		)
+	}
 
 	ctx.AddObject(
 		sm.NewMarker(
