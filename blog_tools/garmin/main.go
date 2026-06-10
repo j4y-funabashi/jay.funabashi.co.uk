@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"image/color"
 	"io"
@@ -22,6 +23,12 @@ import (
 
 type App struct {
 	Logger *slog.Logger
+}
+
+type TrackData struct {
+	Path       []s2.LatLng
+	FirstPoint gpx.GPXPoint
+	LastPoint  gpx.GPXPoint
 }
 
 type HikeData struct {
@@ -62,9 +69,10 @@ func main() {
 		Logger: logger,
 	}
 
-	inputDir := "/home/jayr/Downloads/etrex"
+	inputDir := flag.String("in", "/home/jayr/Downloads/etrex", "input directory")
+	flag.Parse()
 
-	err := filepath.Walk(inputDir,
+	err := filepath.Walk(*inputDir,
 		func(path string, info os.FileInfo, err error) error {
 			ext := filepath.Ext(path)
 			if ext != ".gpx" {
@@ -88,42 +96,49 @@ func (app App) ProcessFile(inputFilePath string) HikeData {
 		app.Logger.Error("failed opening file")
 	}
 
-	gpxFile, err := gpx.ParseBytes(inputFile)
+	// parseGpxData()
+	gpxData, err := gpx.ParseBytes(inputFile)
 	if err != nil {
 		app.Logger.Error("failed parsing bytes")
 	}
-	gpxFile.ReduceGpxToSingleTrack()
-	gpxFile.SimplifyTracks(0.3)
-	gpxFileData := ParseGpxFile(gpxFile)
+	gpxData.ReduceGpxToSingleTrack()
+	gpxData.SimplifyTracks(0.3)
 
-	hike := HikeData{
-		StartTime:        gpxFile.TimeBounds().StartTime,
-		EndTime:          gpxFile.TimeBounds().EndTime,
-		TimeTaken:        gpxFile.TimeBounds().EndTime.Sub(gpxFile.TimeBounds().StartTime),
-		MovingTime:       gpxFile.MovingData().MovingTime,
-		DistanceInMeters: gpxFile.Length2D(),
-		Ascent:           gpxFile.UphillDownhill().Uphill,
-		Descent:          gpxFile.UphillDownhill().Downhill,
+	trackData := ParseTrackData(gpxData)
+
+	// hikeData.AddTrack()
+	hikeData := HikeData{
+		StartTime:        gpxData.TimeBounds().StartTime,
+		EndTime:          gpxData.TimeBounds().EndTime,
+		TimeTaken:        gpxData.TimeBounds().EndTime.Sub(gpxData.TimeBounds().StartTime),
+		MovingTime:       gpxData.MovingData().MovingTime,
+		DistanceInMeters: gpxData.Length2D(),
+		Ascent:           gpxData.UphillDownhill().Uphill,
+		Descent:          gpxData.UphillDownhill().Downhill,
 	}
+
+	// reverseGeo
+	hikeData.StartLocation = ReverseGeo(trackData.FirstPoint)
+	hikeData.EndLocation = ReverseGeo(trackData.LastPoint)
 
 	// create static map
 	ctx := sm.NewContext()
 	ctx.SetSize(1080, 1080)
 
 	ctx.AddObject(
-		sm.NewPath(gpxFileData.Path, color.RGBA{255, 0, 0, 255}, 4.0),
+		sm.NewPath(trackData.Path, color.RGBA{255, 0, 0, 255}, 4.0),
 	)
 
 	ctx.AddObject(
 		sm.NewMarker(
-			s2.LatLngFromDegrees(gpxFileData.FirstPoint.GetLatitude(), gpxFileData.FirstPoint.GetLongitude()),
+			s2.LatLngFromDegrees(trackData.FirstPoint.GetLatitude(), trackData.FirstPoint.GetLongitude()),
 			color.RGBA{0, 255, 0, 255},
 			16.0,
 		))
 
 	ctx.AddObject(
 		sm.NewMarker(
-			s2.LatLngFromDegrees(gpxFileData.LastPoint.GetLatitude(), gpxFileData.LastPoint.GetLongitude()),
+			s2.LatLngFromDegrees(trackData.LastPoint.GetLatitude(), trackData.LastPoint.GetLongitude()),
 			color.RGBA{255, 0, 0, 255},
 			16.0,
 		),
@@ -134,25 +149,16 @@ func (app App) ProcessFile(inputFilePath string) HikeData {
 		app.Logger.Error("failed to render image")
 	}
 
-	err = gg.SavePNG(hike.MapFileName(), img)
+	err = gg.SavePNG(hikeData.MapFileName(), img)
 	if err != nil {
 		app.Logger.Error("failed to save image")
 	}
 
-	hike.StartLocation = ReverseGeo(gpxFileData.FirstPoint)
-	hike.EndLocation = ReverseGeo(gpxFileData.LastPoint)
-
-	return hike
+	return hikeData
 }
 
-type GpxFileData struct {
-	Path       []s2.LatLng
-	FirstPoint gpx.GPXPoint
-	LastPoint  gpx.GPXPoint
-}
-
-func ParseGpxFile(gpxFile *gpx.GPX) GpxFileData {
-	response := GpxFileData{}
+func ParseTrackData(gpxFile *gpx.GPX) TrackData {
+	response := TrackData{}
 
 	for _, track := range gpxFile.Tracks {
 		lastSeg := track.Segments[len(track.Segments)-1]
