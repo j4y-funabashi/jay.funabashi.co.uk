@@ -74,6 +74,7 @@ jobs:
 
       - name: Install Node.js dependencies
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+        working-directory: ./blog
 
       - name: Build with Hugo
         working-directory: ./blog
