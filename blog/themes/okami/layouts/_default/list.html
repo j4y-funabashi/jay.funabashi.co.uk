@@ -1,10 +1,10 @@
 {{ define "main" }}
-<h1>{{ .Title }}</h1>
+<h1 class="text-3xl font-bold">{{ .Title }}</h1>
 
 {{ $paginator := .Paginate (.RegularPagesRecursive.GroupByDate "Jan 2006") 30 }}
 {{ range $paginator.PageGroups }}
 
-  <h2>{{ .Key }}</h2>
+  <h2 class="text-xl font-bold">{{ .Key }}</h2>
 
   {{ range .Pages }}
     {{ partial "post_list.html" . }}

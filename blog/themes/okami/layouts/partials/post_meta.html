@@ -3,7 +3,7 @@
   <div>
     {{ $dateMachine := .Date | time.Format "2006-01-02T15:04:05-07:00" }}
     {{ $dateHuman := .Date | time.Format "Mon, Jan 02, 2006 15:04" }}
-    <a href="{{ .RelPermalink }}"><time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time></a>
+    <a class="text-slate-500" href="{{ .RelPermalink }}"><time datetime="{{ $dateMachine }}">{{ $dateHuman }}</time></a>
   </div>
 
   {{ with .Params.caption }}
@@ -13,7 +13,7 @@
   {{ partial "terms.html" (dict "taxonomy" "tags" "page" .) }}
 
   {{ with .Params.location }}
-  <div>{{ .locality }}, {{ .region }}, {{ .country }}</div>
+  <div class="text-slate-500">{{ with .locality }}{{ . }}, {{ end }}{{ with .region }}{{ . }}, {{ end }}{{ with .country }}{{ . }}{{ end }}</div>
   {{ end }}
 
 </div>

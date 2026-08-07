@@ -5,5 +5,8 @@
   <link rel="token_endpoint" href="https://tokens.indieauth.com/token">
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ printf "%s | %s" .Title site.Title }}{{ end }}</title>
 
-{{ partialCached "head/css.html" . }}
+{{ with (templates.Defer (dict "key" "global")) }}
+  {{ partial "head/css.html" . }}
+{{ end }}
+
 {{ partialCached "head/js.html" . }}

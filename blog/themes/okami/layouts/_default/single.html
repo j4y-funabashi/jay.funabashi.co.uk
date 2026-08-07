@@ -9,8 +9,8 @@
 {{ partial "post_meta.html" . }}
 
 {{ with site.RegularPages.Related . | first 6 }}
-<div class="cf">
 <p>Related content:</p>
+<div class="grid grid-cols-3">
   {{ range . }}
     {{ partial "post_photo_grid.html" . }}
   {{ end }}

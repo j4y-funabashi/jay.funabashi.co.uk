@@ -1,6 +1,6 @@
 {{ define "main" }}
 
-<div class="cf">
+<div class="grid grid-cols-3">
   {{ $photos := where site.RegularPages "Params.photo" "ne" nil }}
   {{ range (.Paginate $photos 30).Pages }}
     {{ partial "post_photo_grid.html" . }}

@@ -4,11 +4,11 @@
     {{ partial "head.html" . }}
   </head>
 
-  <body>
+  <body class="">
     <header>
       {{ partial "header.html" . }}
     </header>
-    <main>
+    <main class="max-w-5xl m-auto">
       {{ block "main" . }}{{ end }}
     </main>
     <footer>
